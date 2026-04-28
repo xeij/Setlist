@@ -1,1 +1,6 @@
 docs/
+.env.*
+.venv/*
+.env
+.venv
+.env.example
