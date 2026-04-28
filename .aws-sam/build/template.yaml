@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "Setlist API \u2014 Lambda + API Gateway + DynamoDB"
+Parameters:
+  SetlistFMApiKey:
+    Type: String
+    NoEcho: true
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+    Environment:
+      Variables:
+        SETLISTFM_API_KEY:
+          Ref: SetlistFMApiKey
+        DYNAMODB_TABLE:
+          Ref: SetlistCacheTable
+Resources:
+  SetlistCacheTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: mbid
+        AttributeType: S
+      KeySchema:
+      - AttributeName: mbid
+        KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+  SetlistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: SetlistFunction
+      Handler: main.handler
+      Events:
+        ProxyPlus:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SetlistCacheTable
+    Metadata:
+      SamResourceId: SetlistFunction
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
