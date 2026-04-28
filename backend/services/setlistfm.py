@@ -37,11 +37,15 @@ class SetlistFMClient:
                 if r.status_code == 404:
                     break
                 r.raise_for_status()
-                items = r.json().get("setlist", [])
+                data = r.json()
+                items = data.get("setlist", [])
                 if not items:
                     break
                 for item in items:
                     setlists.append(_parse_setlist(item))
+                total = int(data.get("total", 0))
+                if total and len(setlists) >= total:
+                    break
         return setlists
 
 

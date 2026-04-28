@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from dotenv import load_dotenv
+from backend.routers import artists, setlists, playlist
 
 load_dotenv()
 
@@ -14,5 +15,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(artists.router, prefix="/api")
+app.include_router(setlists.router, prefix="/api")
+app.include_router(playlist.router, prefix="/api")
 
 handler = Mangum(app, lifespan="off")
