@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import SearchView from './components/SearchView'
 import SetlistPreview from './components/SetlistPreview'
 import PlaylistView from './components/PlaylistView'
 import { getSetlists, generatePlaylist } from './services/api'
-import { getStoredToken, generateLoginUrl, exchangeCode, storeToken } from './services/spotifyAuth'
-import { getCurrentUser, savePlaylist } from './services/spotifyApi'
 
 export default function App() {
   const [view, setView] = useState('search')
@@ -12,24 +10,7 @@ export default function App() {
   const [setlistsData, setSetlistsData] = useState(null)
   const [playlist, setPlaylist] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [spotifyToken, setSpotifyToken] = useState(() => getStoredToken())
   const [error, setError] = useState(null)
-
-  // Handle Spotify OAuth callback
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    if (!code) return
-    exchangeCode(code)
-      .then(({ accessToken, expiresAt }) => {
-        storeToken(accessToken, expiresAt)
-        setSpotifyToken(accessToken)
-        window.history.replaceState({}, '', '/')
-        if (playlist) triggerSave(accessToken)
-      })
-      .catch(() => setError('Spotify login failed. Please try again.'))
-  }, [])
 
   async function handleSelectArtist(selected) {
     setArtist(selected)
@@ -60,31 +41,6 @@ export default function App() {
     }
   }
 
-  async function handleSave() {
-    const token = spotifyToken || getStoredToken()
-    if (!token) {
-      const url = await generateLoginUrl()
-      window.location.href = url
-      return
-    }
-    await triggerSave(token)
-  }
-
-  async function triggerSave(token) {
-    setSaving(true)
-    try {
-      const user = await getCurrentUser(token)
-      const uris = playlist.tracks
-        .filter(t => t.spotify_match)
-        .map(t => t.spotify_match.uri)
-      await savePlaylist(token, user.id, artist.name, playlist.tour_name, uris)
-    } catch {
-      setError('Failed to save playlist to Spotify.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   return (
     <>
       {error && (
@@ -110,11 +66,8 @@ export default function App() {
         <PlaylistView
           artist={artist}
           playlist={playlist}
-          spotifyToken={spotifyToken}
-          onSave={handleSave}
           onRegenerate={() => setView('preview')}
           onBack={() => setView('search')}
-          saving={saving}
         />
       )}
     </>

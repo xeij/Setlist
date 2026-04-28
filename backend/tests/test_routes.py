@@ -103,8 +103,7 @@ def test_generate_playlist_returns_scored_tracks(client):
             }
         ]
     }
-    with patch("backend.services.cache.SetlistCache.get", return_value=cached_data), \
-         patch("backend.services.spotify.SpotifyClient.search_track", return_value=None):
+    with patch("backend.services.cache.SetlistCache.get", return_value=cached_data):
         response = client.post(
             "/api/playlist/generate",
             json={"mbid": "abc123", "tour_name": "OK Tour", "artist_name": "Radiohead"},

@@ -1,31 +1,35 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { searchArtists, getSetlists, generatePlaylist } from './api'
 
 beforeEach(() => {
-  global.fetch = vi.fn()
+  vi.stubGlobal('fetch', vi.fn())
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
 })
 
 describe('searchArtists', () => {
   it('calls /api/artists/search with query', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve([]) })
+    fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve([]) })
     await searchArtists('Radiohead')
-    expect(global.fetch).toHaveBeenCalledWith('/api/artists/search?q=Radiohead')
+    expect(fetch).toHaveBeenCalledWith('/api/artists/search?q=Radiohead')
   })
 })
 
 describe('getSetlists', () => {
   it('calls /api/setlists/{mbid}', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ tours: [], current_leg: null }) })
+    fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ tours: [], current_leg: null }) })
     await getSetlists('abc123')
-    expect(global.fetch).toHaveBeenCalledWith('/api/setlists/abc123')
+    expect(fetch).toHaveBeenCalledWith('/api/setlists/abc123')
   })
 })
 
 describe('generatePlaylist', () => {
   it('POSTs to /api/playlist/generate', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ tracks: [] }) })
+    fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ tracks: [] }) })
     await generatePlaylist('abc123', 'OK Tour', 'Radiohead')
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       '/api/playlist/generate',
       expect.objectContaining({
         method: 'POST',
@@ -35,7 +39,7 @@ describe('generatePlaylist', () => {
   })
 
   it('throws on non-ok response', async () => {
-    global.fetch.mockResolvedValue({
+    fetch.mockResolvedValue({
       ok: false,
       json: () => Promise.resolve({ detail: 'Not found' }),
     })

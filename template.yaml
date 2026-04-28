@@ -6,11 +6,6 @@ Parameters:
   SetlistFMApiKey:
     Type: String
     NoEcho: true
-  SpotifyClientId:
-    Type: String
-  SpotifyClientSecret:
-    Type: String
-    NoEcho: true
 
 Globals:
   Function:
@@ -19,8 +14,6 @@ Globals:
     Environment:
       Variables:
         SETLISTFM_API_KEY: !Ref SetlistFMApiKey
-        SPOTIFY_CLIENT_ID: !Ref SpotifyClientId
-        SPOTIFY_CLIENT_SECRET: !Ref SpotifyClientSecret
         DYNAMODB_TABLE: !Ref SetlistCacheTable
 
 Resources:

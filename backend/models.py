@@ -35,20 +35,10 @@ class SetlistsResponse(BaseModel):
     current_leg: str | None
 
 
-class SpotifyTrack(BaseModel):
-    uri: str
-    name: str
-    artists: list[str]
-    album: str
-    album_art: str | None
-    duration_ms: int
-
-
 class ScoredTrack(BaseModel):
     name: str
     frequency: float
     slot: Literal["opener", "mid", "closer", "encore"]
-    spotify_match: SpotifyTrack | None = None
 
 
 class GenerateRequest(BaseModel):

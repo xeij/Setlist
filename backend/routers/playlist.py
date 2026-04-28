@@ -4,7 +4,6 @@ from backend.models import GenerateRequest, GenerateResponse, Setlist
 from backend.services.cache import SetlistCache
 from backend.services.setlistfm import SetlistFMClient
 from backend.services.algorithm import score_setlists
-from backend.services.spotify import SpotifyClient
 
 router = APIRouter()
 
@@ -30,13 +29,6 @@ async def generate_playlist(request: GenerateRequest):
 
     setlists = [Setlist(**s) for s in tour_raw]
     scored = score_setlists(setlists)
-
-    spotify = SpotifyClient(
-        client_id=os.environ["SPOTIFY_CLIENT_ID"],
-        client_secret=os.environ["SPOTIFY_CLIENT_SECRET"],
-    )
-    for track in scored:
-        track.spotify_match = await spotify.search_track(track.name, request.artist_name)
 
     return GenerateResponse(
         artist=request.artist_name,

@@ -1,4 +1,4 @@
-from backend.models import Song, Setlist, ArtistResult, TourSummary, SetlistsResponse, ScoredTrack, SpotifyTrack, GenerateRequest, GenerateResponse
+from backend.models import Song, Setlist, ArtistResult, TourSummary, SetlistsResponse, ScoredTrack, GenerateRequest, GenerateResponse
 
 def test_song_defaults():
     s = Song(name="Karma Police")
@@ -21,6 +21,7 @@ def test_generate_request():
     req = GenerateRequest(mbid="abc123", tour_name="OK Tour", artist_name="Radiohead")
     assert req.mbid == "abc123"
 
-def test_scored_track_no_spotify():
-    t = ScoredTrack(name="Creep", frequency=0.9, slot="mid", spotify_match=None)
-    assert t.spotify_match is None
+def test_scored_track():
+    t = ScoredTrack(name="Creep", frequency=0.9, slot="mid")
+    assert t.frequency == 0.9
+    assert t.slot == "mid"
