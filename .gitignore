@@ -4,3 +4,6 @@ docs/
 .env
 .venv
 .env.example
+node_modules/
+dist/
+.aws-sam/
